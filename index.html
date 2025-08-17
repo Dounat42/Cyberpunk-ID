@@ -184,6 +184,38 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
+
+    // --- Secret-Page Trigger mit Animation ---
+    (function(){
+      const card = document.querySelector('.card');
+      const now = Date.now();
+      let lastScan = parseInt(localStorage.getItem('lastScan') || 0);
+      let scanCount = parseInt(localStorage.getItem('scanCount') || 0);
+
+      if(now - lastScan < 5000){
+        scanCount++;
+      } else {
+        scanCount = 1;
+      }
+
+      localStorage.setItem('scanCount', scanCount);
+      localStorage.setItem('lastScan', now);
+
+      if(scanCount >= 3){
+        // Animation starten
+        card.style.transition = '0.1s all';
+        let flashes = 0;
+        const flashInterval = setInterval(() => {
+          card.style.boxShadow = flashes % 2 === 0 ? '0 0 50px #00ff99, 0 0 100px #ffffff' : '0 0 20px #00ff99, 0 0 40px #00ff99';
+          flashes++;
+          if(flashes > 5){
+            clearInterval(flashInterval);
+            // Weiterleitung zur secret.html
+            window.location.href = 'secret.html';
+          }
+        }, 100);
+      }
+    })();
   </script>
 </body>
 </html>
