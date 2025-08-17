@@ -3,50 +3,187 @@
 <head>
   <meta charset="UTF-8">
   <title>Cyberpunk ID</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: black;
-      color: #00ffff;
+      background: black;
+      color: #00ff99;
       font-family: 'Orbitron', sans-serif;
       text-align: center;
       margin: 0;
-      padding: 40px;
+      padding: 50px;
+      overflow: hidden;
+      position: relative;
     }
+
+    /* Matrix Hintergrund */
+    canvas#matrix {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -2;
+    }
+
     h1 {
-      color: #ff00ff;
-      text-shadow: 0 0 10px #ff00ff;
+      color: #00ff99;
+      text-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99, 0 0 30px #00ff99;
+      animation: glow 2s infinite alternate;
     }
+
+    /* Card */
     .card {
-      border: 2px solid #00ffff;
-      padding: 20px;
+      border: 2px solid #00ff99;
+      padding: 30px;
       max-width: 400px;
       margin: auto;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.8);
+      box-shadow: 0 0 20px #00ff99;
+      border-radius: 15px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
     }
+
+    /* Neon-Rahmen Animation */
+    .card::after, .card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      border: 2px solid #00ff99;
+      border-radius: 15px;
+      pointer-events: none;
+      animation: neonBorder 2s infinite alternate;
+      box-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99;
+    }
+
+    .card::before {
+      animation-delay: 1s;
+    }
+
+    /* Avatar */
+    .card img {
+      border-radius: 50%;
+      border: 2px solid #00ff99;
+      box-shadow: 0 0 15px #00ff99;
+      animation: pulse 2s infinite;
+    }
+
+    /* Stats */
     .stats {
       margin-top: 20px;
       font-size: 1.2em;
     }
+
     a {
-      color: #00ffff;
+      color: #00ff99;
       text-decoration: none;
+      transition: color 0.3s;
     }
+
     a:hover {
-      color: #ff00ff;
+      color: #00ff00;
+      text-shadow: 0 0 5px #00ff00;
+    }
+
+    /* Animationen */
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #00ff99, 0 0 10px #00ff99; }
+      to { text-shadow: 0 0 20px #00ff99, 0 0 40px #00ff99; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 15px #00ff99; }
+      50% { transform: scale(1.05); box-shadow: 0 0 30px #00ff99; }
+    }
+
+    @keyframes neonBorder {
+      0% { box-shadow: 0 0 5px #00ff99, 0 0 10px #00ff99; }
+      50% { box-shadow: 0 0 20px #00ff99, 0 0 40px #00ff99; }
+      100% { box-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99; }
+    }
+
+    /* Hintergrundrauschen */
+    .card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(0,255,153,0.05),
+        rgba(0,255,153,0.05) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      animation: moveBackground 3s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes moveBackground {
+      from { transform: translate(0,0); }
+      to { transform: translate(50px,50px); }
     }
   </style>
 </head>
 <body>
+  <canvas id="matrix"></canvas>
+
   <div class="card">
     <h1>Cyberpunk ID</h1>
     <img src="deinbild.png" alt="Avatar" width="150"><br><br>
     <strong>Name:</strong> Dominik Stade<br>
-    <strong>Street Cred:</strong> 32<br>
+    <strong>Street Cred:</strong> 37<br>
     <strong>Skills:</strong> Hacking +10, Networking +20
     <div class="stats">
       <p><a href="https://instagram.com/dounatraw">Instagram</a></p>
-      <p><a href="https://github.com/deinprofil">GitHub</a></p>
+      <p><a href="https://github.com/Dounat42">GitHub</a></p>
     </div>
   </div>
+
+  <script>
+    // Matrix Effekt
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+
+    const drops = [];
+    for (let x = 0; x < columns; x++) drops[x] = Math.random() * canvas.height;
+
+    function draw() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#00ff99';
+      ctx.font = fontSize + 'px Orbitron';
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random() * letters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(draw, 50);
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
