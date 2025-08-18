@@ -9,42 +9,80 @@
     body {
       margin: 0;
       font-family: 'Roboto', sans-serif;
-      background: #0b1e0b;
+      background: linear-gradient(120deg, #0b1e0b, #152815, #0b1e0b);
+      background-size: 300% 300%;
+      animation: gradientShift 20s infinite alternate;
       color: #d4f1c5;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       overflow: hidden;
-      position: relative;
+      perspective: 1000px;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
     }
 
     canvas#bokeh {
       position: fixed;
       top: 0;
       left: 0;
-      z-index: -1;
+      z-index: -2;
       width: 100%;
       height: 100%;
     }
 
+    /* Flip-Card Container */
+    .card-wrapper {
+      width: 400px;
+      height: 500px;
+      perspective: 1200px;
+    }
+
     .card {
-      background: #112511;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+      cursor: pointer;
+      border-radius: 15px;
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
       border-radius: 15px;
       padding: 40px 30px;
+      background: rgba(17, 37, 17, 0.7);
+      backdrop-filter: blur(12px);
       box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-      max-width: 400px;
       text-align: center;
-      transform: scale(0);
-      animation: popIn 0.5s forwards;
-      position: relative;
-      z-index: 1;
-      transition: box-shadow 0.2s, transform 0.2s;
+      backface-visibility: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      overflow: hidden;
+    }
+
+    .card-face:hover {
+      transform: scale(1.03);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .card-face.back {
+      transform: rotateY(180deg);
     }
 
     @keyframes popIn { to { transform: scale(1); } }
 
-    .card img {
+    .card-face img.avatar {
       width: 150px;
       height: 150px;
       border-radius: 50%;
@@ -69,22 +107,103 @@
       color: #c1f0c1;
       text-shadow: 0 0 5px #c1f0c1;
     }
+
+    .counter {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #9fd99f;
+    }
+
+    /* --- Galerie --- */
+    .gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #000;
+    }
+
+    /* Secret Profil Animation */
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 20px #4caf50, 0 0 40px #a3d9a5; }
+      50% { box-shadow: 0 0 60px #4caf50, 0 0 120px #c1f0c1; }
+    }
+    .secret-activate {
+      animation: glowPulse 0.8s ease-in-out 3;
+    }
   </style>
 </head>
 <body>
   <canvas id="bokeh"></canvas>
 
-  <div class="card">
-    <img src="Snapseed.jpeg" alt="Avatar">
-    <h1>Dominik Stade</h1>
-    <div class="skills">Hobby Fotograf</div>
-    <div class="stats">
-      <p><strong>Instagram:</strong> <a href="https://instagram.com/dounatraw">dounatraw</a></p>
+  <div class="card-wrapper">
+    <div class="card" id="flipCard">
+      <!-- Vorderseite -->
+      <div class="card-face front">
+        <img class="avatar" src="Snapseed.jpeg" alt="Avatar">
+        <h1>Dominik Stade</h1>
+        <div class="skills">Hobby Fotograf</div>
+        <div class="stats">
+          <p><strong>Instagram:</strong> <a href="https://instagram.com/dounatraw">dounatraw</a></p>
+        </div>
+        <div class="counter" id="counter"></div>
+      </div>
+
+      <!-- Rückseite mit Galerie -->
+      <div class="card-face back">
+        <h1>📸 Galerie</h1>
+        <div class="gallery">
+          <img src="bild1.jpg" alt="Foto 1">
+          <img src="bild2.jpg" alt="Foto 2">
+          <img src="bild3.jpg" alt="Foto 3">
+          <img src="bild4.jpg" alt="Foto 4">
+        </div>
+        <p style="margin-top:20px; font-size:0.8em;">(Tippe Bild für Vollansicht)</p>
+      </div>
     </div>
   </div>
 
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <img src="" alt="Preview">
+  </div>
+
+  <!-- Sound -->
+  <audio id="scanSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
   <script>
-    // Bokeh Effekt
+    // --- Bokeh Effekt ---
     const canvas = document.getElementById('bokeh');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
@@ -127,9 +246,42 @@
       canvas.height = window.innerHeight;
     });
 
+    // --- Flip Effekt ---
+    const flipCard = document.getElementById('flipCard');
+    flipCard.addEventListener('click', () => {
+      flipCard.classList.toggle('flipped');
+    });
+
+    // --- Scan Counter ---
+    let counter = localStorage.getItem('scanCounter') || 0;
+    counter++;
+    localStorage.setItem('scanCounter', counter);
+    document.getElementById('counter').textContent = `👆 Karte gescannt: ${counter}x`;
+
+    // --- Sound Effekt ---
+    const scanSound = document.getElementById('scanSound');
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        scanSound.play().catch(()=>{});
+      }, 300);
+    });
+
+    // --- Lightbox ---
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = lightbox.querySelector('img');
+    document.querySelectorAll('.gallery img').forEach(img => {
+      img.addEventListener('click', e => {
+        lightboxImg.src = e.target.src;
+        lightbox.style.display = 'flex';
+      });
+    });
+    lightbox.addEventListener('click', () => {
+      lightbox.style.display = 'none';
+    });
+
     // --- Secret Profil Trigger ---
     (function(){
-      const card = document.querySelector('.card');
+      const card = document.getElementById('flipCard');
       const now = Date.now();
       let lastScan = parseInt(localStorage.getItem('lastScan') || 0);
       let scanCount = parseInt(localStorage.getItem('scanCount') || 0);
@@ -144,18 +296,10 @@
       localStorage.setItem('lastScan', now);
 
       if(scanCount >= 3){
-        // Kleine Animation bevor Weiterleitung
-        let flashes = 0;
-        const flashInterval = setInterval(() => {
-          card.style.boxShadow = flashes % 2 === 0 ? 
-            '0 0 50px #4caf50, 0 0 100px #c1f0c1' : 
-            '0 0 20px #4caf50, 0 0 40px #b5e3b5';
-          flashes++;
-          if(flashes > 5){
-            clearInterval(flashInterval);
-            window.location.href = 'secret.html';
-          }
-        }, 100);
+        card.classList.add('secret-activate');
+        setTimeout(() => {
+          window.location.href = 'secret.html';
+        }, 2500); // Zeit für die Animation
       }
     })();
   </script>
