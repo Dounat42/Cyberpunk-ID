@@ -2,191 +2,132 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cyberpunk ID</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fotografen-Profil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background: black;
-      color: #00ff99;
-      font-family: 'Orbitron', sans-serif;
-      text-align: center;
       margin: 0;
-      padding: 50px;
+      font-family: 'Roboto', sans-serif;
+      background: #0b1e0b;
+      color: #d4f1c5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
       overflow: hidden;
       position: relative;
     }
 
-    /* Matrix Hintergrund */
-    canvas#matrix {
+    canvas#bokeh {
       position: fixed;
       top: 0;
       left: 0;
-      z-index: -2;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
     }
 
-    h1 {
-      color: #00ff99;
-      text-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99, 0 0 30px #00ff99;
-      animation: glow 2s infinite alternate;
-    }
-
-    /* Card */
     .card {
-      border: 2px solid #00ff99;
-      padding: 30px;
+      background: #112511;
+      border-radius: 15px;
+      padding: 40px 30px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
       max-width: 400px;
-      margin: auto;
-      background: rgba(0, 0, 0, 0.8);
-      box-shadow: 0 0 20px #00ff99;
-      border-radius: 15px;
+      text-align: center;
+      transform: scale(0);
+      animation: popIn 0.5s forwards;
       position: relative;
-      overflow: hidden;
       z-index: 1;
+      transition: box-shadow 0.2s, transform 0.2s;
     }
 
-    /* Neon-Rahmen Animation */
-    .card::after, .card::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      width: calc(100% + 4px);
-      height: calc(100% + 4px);
-      border: 2px solid #00ff99;
-      border-radius: 15px;
-      pointer-events: none;
-      animation: neonBorder 2s infinite alternate;
-      box-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99;
-    }
+    @keyframes popIn { to { transform: scale(1); } }
 
-    .card::before {
-      animation-delay: 1s;
-    }
-
-    /* Avatar */
     .card img {
+      width: 150px;
+      height: 150px;
       border-radius: 50%;
-      border: 2px solid #00ff99;
-      box-shadow: 0 0 15px #00ff99;
-      animation: pulse 2s infinite;
+      object-fit: cover;
+      border: 3px solid #4caf50;
+      margin-bottom: 20px;
+      transform: scale(0);
+      animation: avatarPop 0.6s forwards 0.3s;
     }
 
-    /* Stats */
-    .stats {
-      margin-top: 20px;
-      font-size: 1.2em;
-    }
+    @keyframes avatarPop { to { transform: scale(1); } }
 
+    h1 { margin: 0; font-weight: 700; font-size: 1.8em; color: #a3d9a5; }
+    .skills { margin-top: 10px; font-style: italic; color: #b5e3b5; }
+    .stats { margin-top: 20px; font-size: 1em; line-height: 1.5; }
     a {
-      color: #00ff99;
+      color: #7ed57e;
       text-decoration: none;
-      transition: color 0.3s;
+      transition: color 0.3s, text-shadow 0.3s;
     }
-
     a:hover {
-      color: #00ff00;
-      text-shadow: 0 0 5px #00ff00;
-    }
-
-    /* Animationen */
-    @keyframes glow {
-      from { text-shadow: 0 0 5px #00ff99, 0 0 10px #00ff99; }
-      to { text-shadow: 0 0 20px #00ff99, 0 0 40px #00ff99; }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 15px #00ff99; }
-      50% { transform: scale(1.05); box-shadow: 0 0 30px #00ff99; }
-    }
-
-    @keyframes neonBorder {
-      0% { box-shadow: 0 0 5px #00ff99, 0 0 10px #00ff99; }
-      50% { box-shadow: 0 0 20px #00ff99, 0 0 40px #00ff99; }
-      100% { box-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99; }
-    }
-
-    /* Hintergrundrauschen */
-    .card::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(0,255,153,0.05),
-        rgba(0,255,153,0.05) 1px,
-        transparent 1px,
-        transparent 4px
-      );
-      animation: moveBackground 3s linear infinite;
-      pointer-events: none;
-    }
-
-    @keyframes moveBackground {
-      from { transform: translate(0,0); }
-      to { transform: translate(50px,50px); }
+      color: #c1f0c1;
+      text-shadow: 0 0 5px #c1f0c1;
     }
   </style>
 </head>
 <body>
-  <canvas id="matrix"></canvas>
+  <canvas id="bokeh"></canvas>
 
   <div class="card">
-    <h1>Cyberpunk ID</h1>
-    <img src="deinbild.png" alt="Avatar" width="150"><br><br>
-    <strong>Name:</strong> Dominik Stade<br>
-    <strong>Street Cred:</strong> 37<br>
-    <strong>Skills:</strong> Hacking +10, Networking +20
+    <img src="deinbild.png" alt="Avatar">
+    <h1>Dominik Stade</h1>
+    <div class="skills">Hobby Fotograf | Street & Tiere</div>
     <div class="stats">
-      <p><a href="https://instagram.com/dounatraw">Instagram</a></p>
-      <p><a href="https://github.com/Dounat42">GitHub</a></p>
+      <p><strong>Instagram:</strong> <a href="https://instagram.com/dounatraw">dounatraw</a></p>
     </div>
   </div>
 
   <script>
-    // Matrix Effekt
-    const canvas = document.getElementById('matrix');
+    // Bokeh Effekt
+    const canvas = document.getElementById('bokeh');
     const ctx = canvas.getContext('2d');
-
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const fontSize = 16;
-    const columns = canvas.width / fontSize;
-
-    const drops = [];
-    for (let x = 0; x < columns; x++) drops[x] = Math.random() * canvas.height;
-
-    function draw() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = '#00ff99';
-      ctx.font = fontSize + 'px Orbitron';
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters.charAt(Math.floor(Math.random() * letters.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
+    const circles = [];
+    const total = 60;
+    for(let i=0;i<total;i++){
+      const radius = Math.random() * 25 + 5;
+      circles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: radius,
+        alpha: Math.random() * 0.4 + 0.1,
+        speed: (30 - radius) / 15
+      });
     }
 
-    setInterval(draw, 50);
+    function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(let c of circles){
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(76, 175, 80, ${c.alpha})`;
+        ctx.fill();
+
+        c.y -= c.speed;
+        if(c.y + c.radius < 0){
+          c.y = canvas.height + c.radius;
+          c.x = Math.random() * canvas.width;
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+
+    draw();
 
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
 
-    // --- Secret-Page Trigger mit Animation ---
+    // --- Secret Profil Trigger ---
     (function(){
       const card = document.querySelector('.card');
       const now = Date.now();
@@ -203,15 +144,15 @@
       localStorage.setItem('lastScan', now);
 
       if(scanCount >= 3){
-        // Animation starten
-        card.style.transition = '0.1s all';
+        // Kleine Animation bevor Weiterleitung
         let flashes = 0;
         const flashInterval = setInterval(() => {
-          card.style.boxShadow = flashes % 2 === 0 ? '0 0 50px #00ff99, 0 0 100px #ffffff' : '0 0 20px #00ff99, 0 0 40px #00ff99';
+          card.style.boxShadow = flashes % 2 === 0 ? 
+            '0 0 50px #4caf50, 0 0 100px #c1f0c1' : 
+            '0 0 20px #4caf50, 0 0 40px #b5e3b5';
           flashes++;
           if(flashes > 5){
             clearInterval(flashInterval);
-            // Weiterleitung zur secret.html
             window.location.href = 'secret.html';
           }
         }, 100);
